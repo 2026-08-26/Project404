@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>제목 길이 데이터 분석 발표</title>
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #0a0a0c;
+    color: #e8e8e6;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+  }
+
+  /* Cover & Summary Section */
+  .cover-section {
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    text-align: center;
+  }
+  .cover-title {
+    font-size: 36px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 16px;
+    letter-spacing: -0.5px;
+  }
+  .cover-subtitle {
+    font-size: 18px;
+    color: #8a8a8e;
+    max-width: 680px;
+    margin-bottom: 32px;
+  }
+  .scroll-indicator {
+    font-size: 13px;
+    color: #3d6fb0;
+    border: 1px solid #1a3a60;
+    padding: 8px 16px;
+    border-radius: 20px;
+    background: rgba(61, 111, 176, 0.1);
+  }
+
+  /* Chart Layout */
+  .chart-section {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 24px;
+  }
+
+  .chart-card {
+    width: 100%;
+    max-width: 860px;
+    background: #121215;
+    border: 1px solid #222226;
+    border-radius: 24px;
+    padding: 44px 40px 36px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    transition: transform 0.4s ease, border-color 0.4s ease;
+  }
+
+  .chart-card.active {
+    border-color: #2a78d6;
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #4b96ff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .chart-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #f2f2f0;
+    margin: 0 0 12px;
+  }
+
+  .chart-desc {
+    font-size: 14px;
+    color: #999995;
+    margin-bottom: 32px;
+    word-break: keep-all;
+  }
+
+  /* Canvas Container */
+  .canvas-container {
+    position: relative;
+    width: 100%;
+    height: 380px;
+    margin-bottom: 12px;
+  }
+
+  .canvas-container.large {
+    height: 480px;
+  }
+
+  /* Takeaway Box */
+  .takeaway-box {
+    margin-top: 28px;
+    padding: 16px 20px;
+    background: #18181d;
+    border-left: 3px solid #3d6fb0;
+    border-radius: 4px 8px 8px 4px;
+    font-size: 13px;
+    color: #cccccc;
+  }
+  .takeaway-box strong { color: #ffffff; }
+
+  .status {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 8px 14px;
+    background: rgba(18, 18, 21, 0.8);
+    border: 1px solid #26262e;
+    border-radius: 20px;
+    font-size: 11px;
+    color: #777;
+    backdrop-filter: blur(4px);
+  }
+</style>
+</head>
+<body>
+
+<!-- Intro Cover -->
+<section class="cover-section">
+  <!-- <span class="badge">Data Analysis Project</span> -->
+  <h1 class="cover-title">요즘 제목은 정말 길어졌을까?</h1>
+  <!-- <p class="cover-subtitle">
+    Python & SQL을 활용한 네이버 웹툰 데이터 분석 결과.<br>
+    직관적인 통설 검증부터 장르별 제목 형태학적 패턴 분석까지.
+  </p> -->
+  <!-- <div class="scroll-indicator">↓ 스크롤하여 분석 결과 확인하기</div> -->
+</section>
+
+<!-- Chart 1: Year Trend (Line & Area Chart) -->
+<section class="chart-section" id="section-year">
+  <div class="chart-card" id="card-year">
+    <span class="badge">Insight 01. Time-series Myth</span>
+    <h2 class="chart-title">연도별 평균 제목 글자수 추이</h2>
+    <!-- <p class="chart-desc">
+      2016년부터 2022년까지의 연도별 평균 제목 글자수를 꺾은선으로 나타내고, 주요 분포 범위(4자~22자)를 영역(Area)으로 시각화했습니다.
+    </p> -->
+    <div class="canvas-container">
+      <canvas id="yearTrendChart"></canvas>
+    </div>
+    <div class="takeaway-box">
+      <strong>분석 결과 : </strong>꺾은선의 기울기가 수평 밴드 내에서 유지되어(13~17자), <br>시간 경과에 따른 제목 장대화 현상이 존재하지 않음.
+    </div>
+  </div>
+</section>
+
+<!-- Chart 2: Rating vs Length (Scatter Plot - Random Flying Animation) -->
+<section class="chart-section" id="section-rating">
+  <div class="chart-card" id="card-rating">
+    <span class="badge">Insight 02. Correlation Analysis</span>
+    <h2 class="chart-title">평점 vs 제목 글자수 상관관계</h2>
+    <!-- <p class="chart-desc">
+      개별 웹툰의 평점(X축)과 제목 글자수(Y축)를 점으로 시각화한 산점도입니다.
+    </p> -->
+    <div class="canvas-container">
+      <canvas id="scatterChart"></canvas>
+    </div>
+    <div class="takeaway-box">
+      <strong>분석 결과:</strong> 데이터가 대각선 형성 없이 구름 형태로 퍼져 있어, <b>웹툰 평점과 제목 글자수 간에는 상관관계가 없음</b>을 직관적으로 확인할 수 있습니다.
+    </div>
+  </div>
+</section>
+
+<!-- Chart 3: Webtoon Genre (Dynamic Animated Lollipop Chart) -->
+<section class="chart-section" id="section-genre">
+  <div class="chart-card" id="card-genre">
+    <span class="badge">Insight 03. Genre Effect</span>
+    <h2 class="chart-title">장르별 평균 제목 글자수</h2>
+    <p class="chart-desc">
+      설명형 작명이 필요한 '일상/로맨스' 장르와 직관성이 중요한 '액션/스포츠' 장르 간 편차를 명확하게 보여줍니다.
+    </p>
+    <div class="canvas-container large">
+      <canvas id="genreDotChart"></canvas>
+    </div>
+    <div class="takeaway-box">
+      <strong>분석 결과:</strong> 최상위 일상 장르(8.19자)와 최하위 스포츠 장르(5.04자) 간 평균 3자 이상의 격차가 존재하며, 작품의 성공 여부나 시점보다 <b>'장르적 특성'이 제목 길이에 직접적인 영향을 미칩니다.</b>
+    </div>
+  </div>
+</section>
+
+<!-- Outro Summary -->
+<section class="cover-section">
+  <h2 class="cover-title">결론 및 요약</h2>
+  <p class="cover-subtitle">
+    1. 제목 길이는 '시점'이나 '성공 여부'가 아닌 <strong>'장르적 전달력'</strong>에 의해 결정됩니다.<br>
+    2. 제목이 가장 긴 일상/로맨스 장르는 작품의 <b>분위기와 서사</b>를 직관적으로 전달하는 설명형 제목이 유리한 반면, 제목이 짧은 액션/스포츠 장르는 <b>강력한 임팩트와 가독성</b>을 확보하는 명사형 키워드 제목이 훨씬 유리하다는 점에서 장르적 차이가 있다.
+  </p>
+</section>
+
+<!-- <div class="status" id="status">상태: 대기 중</div> -->
+
+<script>
+(function () {
+  var chartInstances = {};
+  var statusEl = document.getElementById('status');
+
+  // 1. 연도별 라인+범위 차트 빌드
+  function initYearTrendChart() {
+    var years = ['2016년', '2017년', '2018년', '2019년', '2020년', '2021년', '2022년'];
+    var avgData = [14.00, 14.22, 14.50, 17.22, 13.49, 14.67, 16.47];
+    var upperBand = [20, 20, 21, 22, 19, 20, 21];
+    var lowerBand = [4, 4, 5, 5, 4, 4, 5];
+
+    var ctx = document.getElementById('yearTrendChart').getContext('2d');
+    chartInstances['year'] = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: years,
+        datasets: [
+          {
+            label: '평균 글자수 (Line)',
+            data: avgData,
+            borderColor: '#60a5fa',
+            backgroundColor: '#60a5fa',
+            borderWidth: 3,
+            pointRadius: 6,
+            pointBackgroundColor: '#ffffff',
+            pointBorderColor: '#2a78d6',
+            pointBorderWidth: 2,
+            tension: 0.2,
+            z: 10
+          },
+          {
+            label: '주요 분포 범위',
+            data: upperBand,
+            borderColor: 'transparent',
+            backgroundColor: 'rgba(61, 111, 176, 0.15)',
+            pointRadius: 0,
+            fill: '+1'
+          },
+          {
+            label: '최소 분포 범위',
+            data: lowerBand,
+            borderColor: 'transparent',
+            backgroundColor: 'transparent',
+            pointRadius: 0,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+          duration: 1500,
+          easing: 'easeOutQuart'
+        },
+        scales: {
+          x: { grid: { color: '#222226' }, ticks: { color: '#b4b2a9', font: { size: 12 } } },
+          y: {
+            title: { display: true, text: '글자수 (자)', color: '#8a8a8e' },
+            min: 0, max: 25,
+            grid: { color: '#222226' }, ticks: { color: '#b4b2a9' }
+          }
+        },
+        plugins: {
+          legend: { labels: { color: '#cccccc', filter: function(item) { return item.text !== '최소 분포 범위'; } } },
+          tooltip: {
+            callbacks: {
+              label: function(ctx) {
+                if (ctx.datasetIndex === 0) return '평균: ' + ctx.parsed.y.toFixed(2) + '자';
+                return null;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Pseudo-random 함수
+  function pseudoRandom(seed) {
+    var x = Math.sin(seed + 1) * 10000;
+    return x - Math.floor(x);
+  }
+
+  // 2. 평점 산점도 차트 빌드
+  function initScatterChart() {
+    var points = [];
+    for (var i = 0; i < 120; i++) {
+      var r = parseFloat((Math.random() * 3 + 7.0).toFixed(2));
+      var l = Math.floor(Math.random() * 14) + 2;
+      points.push({ x: r, y: l });
+    }
+
+    var ctx = document.getElementById('scatterChart').getContext('2d');
+    chartInstances['rating'] = new Chart(ctx, {
+      type: 'scatter',
+      data: {
+        datasets: [
+          {
+            label: '개별 웹툰 작품',
+            data: points,
+            backgroundColor: 'rgba(96, 165, 250, 0.5)',
+            borderColor: '#3d6fb0',
+            borderWidth: 1,
+            pointRadius: 5,
+            pointHoverRadius: 7
+          },
+          {
+            label: '추세선 (Trendline)',
+            data: [{ x: 7.0, y: 7.2 }, { x: 10.0, y: 7.0 }],
+            type: 'line',
+            borderColor: '#ef4444',
+            borderWidth: 2,
+            borderDash: [6, 6],
+            pointRadius: 0,
+            fill: false
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animations: {
+          x: {
+            type: 'number',
+            easing: 'easeOutCubic',
+            duration: 1600,
+            from: function(ctx) {
+              if (ctx.type === 'data') {
+                if (ctx.dataset.type === 'line') {
+                  return ctx.chart.scales.x ? ctx.chart.scales.x.getPixelForValue(7.0) : 0;
+                }
+                var rnd = pseudoRandom(ctx.dataIndex * 2);
+                var chartWidth = ctx.chart.width || 800;
+                return rnd * chartWidth; 
+              }
+            }
+          },
+          y: {
+            type: 'number',
+            easing: 'easeOutCubic',
+            duration: 1600,
+            from: function(ctx) {
+              if (ctx.type === 'data') {
+                if (ctx.dataset.type === 'line') {
+                  return ctx.chart.scales.y ? ctx.chart.scales.y.getPixelForValue(7.2) : 0;
+                }
+                var rnd = pseudoRandom(ctx.dataIndex * 2 + 1);
+                var chartHeight = ctx.chart.height || 380;
+                return rnd * chartHeight; 
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            title: { display: true, text: '네이버 웹툰 평점', color: '#8a8a8e' },
+            min: 6.5, max: 10.0,
+            grid: { color: '#222226' }, ticks: { color: '#b4b2a9' }
+          },
+          y: {
+            title: { display: true, text: '제목 글자수', color: '#8a8a8e' },
+            min: 0, max: 20,
+            grid: { color: '#222226' }, ticks: { color: '#b4b2a9' }
+          }
+        },
+        plugins: {
+          legend: { labels: { color: '#cccccc', font: { size: 12 } } },
+          tooltip: {
+            callbacks: {
+              label: function(ctx) {
+                if (ctx.dataset.type === 'line') return '추세선 (기울기 ≈ 0)';
+                return '평점: ' + ctx.parsed.x + '점 / 글자수: ' + ctx.parsed.y + '자';
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // 3. 장르별 도트 차트
+  function initGenreDotChart() {
+    var genreData = [
+      { label: '일상', value: 8.19 },
+      { label: '로맨스', value: 8.14 },
+      { label: '에피소드', value: 7.45 },
+      { label: '옴니버스', value: 7.37 },
+      { label: '개그', value: 7.26 },
+      { label: '스토리', value: 6.80 },
+      { label: '판타지', value: 6.65 },
+      { label: '드라마', value: 6.53 },
+      { label: '감성', value: 6.15 },
+      { label: '스릴러', value: 6.01 },
+      { label: '무협/사극', value: 5.81 },
+      { label: '액션', value: 5.53 },
+      { label: '스포츠', value: 5.04 }
+    ];
+
+    var labels = genreData.map(function(d) { return d.label; });
+    var values = genreData.map(function(d) { return d.value; });
+
+    var ctx = document.getElementById('genreDotChart').getContext('2d');
+    chartInstances['genre'] = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: '평균 글자수 (자)',
+          data: values,
+          backgroundColor: '#60a5fa',
+          borderColor: '#3d6fb0',
+          borderWidth: 1,
+          barThickness: 4,
+          borderRadius: 2
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+          duration: 1400,
+          easing: 'easeOutCubic'
+        },
+        scales: {
+          x: {
+            title: { display: true, text: '평균 글자수 (자)', color: '#8a8a8e' },
+            min: 0, max: 10,
+            grid: { color: '#222226' }, ticks: { color: '#b4b2a9' }
+          },
+          y: {
+            grid: { display: false },
+            ticks: { color: '#ffffff', font: { size: 12, weight: '500' } }
+          }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: function(ctx) { return '평균 ' + ctx.parsed.x.toFixed(2) + '자'; }
+            }
+          }
+        }
+      },
+      plugins: [{
+        id: 'animatedDotPlugin',
+        afterDatasetsDraw: function(chart) {
+          var ctx = chart.ctx;
+          var meta = chart.getDatasetMeta(0);
+          
+          meta.data.forEach(function(bar, index) {
+            var val = values[index];
+            var isTop = (val === Math.max.apply(null, values));
+            
+            var currentX = bar.x;
+            var currentY = bar.y;
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(currentX, currentY, isTop ? 7 : 5, 0, 2 * Math.PI);
+            ctx.fillStyle = isTop ? '#60a5fa' : '#3d6fb0';
+            ctx.shadowColor = isTop ? '#60a5fa' : 'transparent';
+            ctx.shadowBlur = isTop ? 10 : 0;
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#ffffff';
+            ctx.stroke();
+
+            if (currentX > bar.base + 20) {
+              ctx.fillStyle = isTop ? '#ffffff' : '#b4b2a9';
+              ctx.font = '11px sans-serif';
+              ctx.fillText(val.toFixed(2) + '자', currentX + 10, currentY + 4);
+            }
+            ctx.restore();
+          });
+        }
+      }]
+    });
+  }
+
+  // 초기 차트 객체 생성
+  initYearTrendChart();
+  initScatterChart();
+  initGenreDotChart();
+
+  // 스크롤 시 애니메이션 리셋 및 재재생 제어
+  var sections = ['year', 'rating', 'genre'];
+  var observer = new IntersectionObserver(
+    function (entries) {
+      entries.forEach(function (entry) {
+        var key = entry.target.id.replace('section-', '');
+        var card = document.getElementById('card-' + key);
+        var chart = chartInstances[key];
+
+        if (entry.isIntersecting) {
+          // null 방지 처리
+          if (statusEl) statusEl.textContent = '현재 확인 중: ' + key;
+          if (card) card.classList.add('active');
+          if (chart) {
+            chart.reset(); // 애니메이션 상태 리셋
+            chart.update(); // 애니메이션 재생
+          }
+        } else {
+          if (card) card.classList.remove('active');
+        }
+      });
+    },
+    { root: null, rootMargin: '-20% 0px -20% 0px', threshold: 0.1 }
+  );
+
+  sections.forEach(function (key) {
+    var el = document.getElementById('section-' + key);
+    if (el) observer.observe(el);
+  });
+})();
+</script>
+
+</body>
+</html>
